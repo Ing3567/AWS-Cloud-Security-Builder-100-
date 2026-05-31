@@ -274,7 +274,7 @@
 
 - ให้คงการตั้งค่าเริ่มต้น (Default settings) อื่นๆ ทั้งหมดไว้ ยกเว้นในขั้นตอนการกำหนดสิทธิ์ (Key permissions) ให้ทำการเลือกบทบาท (Role) ที่ชื่อว่า voclabs ให้ได้รับทั้งสิทธิ์ Key administrator (ผู้ดูแลระบบคีย์) และสิทธิ์ Key user (ผู้ใช้คีย์)
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/1.1.png)
+![alt text](Phase%203/1.1.png)
 
 **1.2** ตั้งค่าการหมุนเวียนคีย์ (Key Rotation):
 
@@ -282,7 +282,7 @@
 
 - ตั้งค่าฟังก์ชัน AWS KMS key rotation บนคีย์ใหม่ที่คุณเพิ่งสร้างขึ้นนี้ เพื่อกำหนดให้ระบบเปิดใช้งานการหมุนเวียนคีย์โดยอัตโนมัติในทุกๆ ปี (Every year)
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/1.2.png)
+![alt text](Phase%203/1.2.png)
 
 ### 2. อัปเดต Key Policy และวิเคราะห์สิทธิ์ผู้ใช้งาน
 
@@ -302,17 +302,17 @@
 		"arn:aws:iam::ACCOUNT-NUMBER:user/sofia"
 
 		]
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/2.1.png)
+![alt text](Phase%203/2.1.png)
 
  **2.2** วิเคราะห์ IAM Policy ที่ชื่อ PolicyForFinancialAdvisors:
 
-ให้ทำการตรวจสอบและวิเคราะห์นโยบาย IAM ที่ชื่อ **PolicyForFinancialAdvisors** ที่มีอยู่ในระบบ
+- ให้ทำการตรวจสอบและวิเคราะห์นโยบาย IAM ที่ชื่อ **PolicyForFinancialAdvisors** ที่มีอยู่ในระบบ
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/2.2.png)
+![alt text](Phase%203/2.2.png)
 
 -   **ผลการวิเคราะห์ (Analysis):** นโยบายนี้ให้สิทธิ์ควบคุมอย่างเต็มที่ (Full Control) กับ S3 Buckets ทั้งหมดภายในบัญชี และให้สิทธิ์ในการเข้ารหัส (Encrypt) รวมถึงถอดรหัส (Decrypt) อ็อบเจกต์ต่างๆ ได้ ซึ่งนโยบายนี้ถูกผูกไว้กับ IAM Group ที่ชื่อ **FinancialAdvisorGroup** ซึ่งตัวผู้ใช้ `sofia` นั้นเป็นสมาชิกอยู่ในกลุ่มนี้ด้วย
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/2.3.png)
+![alt text](Phase%203/2.3.png)
 
 ### 3. ใช้ KMS เข้ารหัสข้อมูลที่จัดเก็บใน Amazon S3
 **3.1** **เปลี่ยนการตั้งค่าการเข้ารหัสของ Bucket:**
@@ -342,7 +342,7 @@
     
 -   **บทวิเคราะห์ (Analysis):** สาเหตุที่ `sofia` อัปโหลดไฟล์ได้สำเร็จ เนื่องจากเธอได้รับสิทธิ์ให้อัปโหลดอ็อบเจกต์ผ่านทาง **Bucket Policy** ของ `data-bucket` นอกจากนี้เธอยังมีสิทธิ์ผ่านทาง **IAM Policy** ในการใช้งานบริการ AWS KMS และที่สำคัญที่สุดคือ คีย์ AWS KMS ตัวที่ Bucket นี้ใช้เข้ารหัสข้อมูล มีการผูก **Key Policy** ที่อนุญาตให้ `sofia` ใช้งานคีย์ได้โดยเฉพาะ (ที่คุณตั้งค่าไว้ใน Task 3.2) เมื่อเงื่อนไขความปลอดภัยทั้ง 3 ส่วนนี้ครบถ้วน เธอจึงทำงานนี้ได้สำเร็จ
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/3.1.png)
+![alt text](Phase%203/3.1.png)
 
 **3.4** **ตรวจสอบการเข้ารหัสของไฟล์:**
 
@@ -350,7 +350,7 @@
     
 -   **ผลลัพธ์:** ชนิดการเข้ารหัส (Encryption type) ของไฟล์นี้จะต้องแสดงเป็น **SSE-KMS**
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/3.2.png)
+![alt text](Phase%203/3.2.png)
 
 **3.5** **ทดสอบเปิดไฟล์ด้วยสิทธิ์ `sofia`:**
 
@@ -368,7 +368,7 @@
     
 -   เมื่อทดสอบเสร็จเรียกว่า ให้ล็อกเอาต์และปิดแท็บเบราว์เซอร์แบบ Incognito ไปได้เลย
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/3.3.png)
+![alt text](Phase%203/3.3.png)
 
 ### 4. ใช้ KMS เข้ารหัส Root Volume ของเครื่อง EC2
 **4.1** **สร้าง EC2 Instance เครื่องใหม่:**
@@ -399,7 +399,7 @@
         
     -   **ผลลัพธ์:** ข้อมูลบนหน้าจอในแท็บ Storage ควรจะแสดงรายละเอียดคล้ายกับรูปภาพที่คุณแนบมา (ในคอลัมน์ **Encrypted** จะต้องขึ้นสถานะว่า **Yes** และช่อง **KMS key ID** จะต้องตรงกับคีย์ที่คุณเลือกใช้ครับ)
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/4.1.png)
+![alt text](Phase%203/4.1.png)
 
 ### 5. ใช้เทคนิค Envelope Encryption เพื่อเข้ารหัสข้อมูลไฟล์โดยตรง
 **5.1** **ขั้นตอนการปฏิบัติและชุดคำสั่ง**
@@ -440,7 +440,7 @@
             
         -   `Plaintext`: คือ Data Key ในรูปแบบ**ข้อความดิบ (ไม่เข้ารหัส)** ที่จะเอาไปใช้สั่งเข้ารหัสไฟล์ตรงๆ ทันที
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/5.1.png)
+![alt text](Phase%203/5.1.png)
 
 **5.2** **บันทึก Data Key ลงในเครื่อง:**
 
@@ -460,7 +460,7 @@
     ``` Bash
     aws kms decrypt --ciphertext-blob fileb://./data_key_ciphertext --query Plaintext --output text | 		   base64 --decode > data_key_plaintext_encrypted
     ```
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/5.2.png)
+![alt text](Phase%203/5.2.png)
 
 **5.3** **ใช้ Data Key เข้ารหัสไฟล์ข้อมูลของคุณ:**
 
@@ -492,7 +492,7 @@
     
 -   **บทวิเคราะห์ (Analysis):** มาถึงตรงนี้คุณได้เรียนรู้วิธีการสร้างคีย์สำหรับเข้ารหัสข้อมูล (Data Key) เก็บมันไว้ในรูปแบบที่ปลอดภัย ปิดผนึกไฟล์เป้าหมายเรียบร้อย และทำลายไฟล์ต้นฉบับทิ้ง ขั้นตอนต่อไปคือการทดลองกู้คืนข้อมูลกลับมา
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/5.3.png)
+![alt text](Phase%203/5.3.png)
 
 **5.4** **ใช้ Data Key เข้ารหัสไฟล์ข้อมูลของคุณ:**
     
@@ -547,7 +547,7 @@
         
     -   **ผลลัพธ์:** คุณจะเห็นข้อความดิบ _"Let's encrypt these file contents..."_ กลับคืนมาเหมือนตอนแรกทุกประการ
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/5.4.png)
+![alt text](Phase%203/5.4.png)
   
 ### 6. ใช้ KMS เข้ารหัสข้อมูลความลับในระบบ Secrets Manager
 **6.1** ### ขั้นตอนการตั้งค่าและการปฏิบัติ
@@ -594,7 +594,7 @@
             
     -   **ผลลัพธ์:** คุณควรจะเห็นข้อมูลคู่คีย์-ค่า (`"secret": "my secret data"`) แสดงกลับคืนมาในผลลัพธ์บนหน้าจอ
 
-![alt text](/AWS-Cloud-Security-Builder-100-/Phase%203/6.1.png)
+![alt text](Phase%203/6.1.png)
   
 
 ### Conclusion & Future Work
