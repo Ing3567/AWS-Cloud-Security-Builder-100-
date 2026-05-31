@@ -73,7 +73,9 @@ Real-world Application & Examples
 ### Steps :
 #### 1.ตรวจสอบทรัพยากรเดิมและเก็บบันทึกประวัติ
 1.1เข้าไปที่หน้าต่างควบคุม Amazon VPC (ภูมิภาค us-east-1) เพื่อตรวจสอบแผนผังเครือข่ายของ LabVPC พบว่า WebServerSubnet ยังไม่มีเส้นทาง (Route) ชี้ไปยัง Internet Gateway
+![alt text](image.png)
 1.2 ทำการเปิดระบบบันทึกประวัติโดยเลือกที่ LabVPC กดสร้าง Flow Logs ตั้งชื่อว่า LabVPCFlowLogs กำหนดให้ส่งข้อมูลไปยัง CloudWatch Logs กลุ่มชื่อ LabVPCFlowLogs โดยตั้งค่าเวลาสรุปข้อมูลทุกๆ 1 นาที
+![AWS Architecture Diagram](Phase 2\Screenshot 2026-05-25 220008.png)
 #### 2.แก้ไขRoute Tables
 2.1 ไปที่หัวข้อ Route Tables เลือกตารางที่ผูกอยู่กับ WebServerSubnet
 2.2 กด Edit routes เพิ่มเส้นทางใหม่เป็น ปลายทาง (Destination): 0.0.0.0/0 และ เป้าหมาย (Target): เลือก Internet Gateway (IGW) ของระบบ เพื่อเปิดให้อินเทอร์เน็ตวิ่งเข้า-ออกได้
