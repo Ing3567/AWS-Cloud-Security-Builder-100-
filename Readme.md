@@ -71,24 +71,28 @@ Real-world Application & Examples
 - Internet Gateway (IGW) ที่เชื่อมต่อกับ VPC อยู่แล้ว แต่ยังไม่ได้ผูกเส้นทาง
 
 ### Steps :
-#### 1.ตรวจสอบทรัพยากรเดิมและเก็บบันทึกประวัติ
-1.1เข้าไปที่หน้าต่างควบคุม Amazon VPC (ภูมิภาค us-east-1) เพื่อตรวจสอบแผนผังเครือข่ายของ LabVPC พบว่า WebServerSubnet ยังไม่มีเส้นทาง (Route) ชี้ไปยัง Internet Gateway
+#### 1. ตรวจสอบทรัพยากรเดิมและเก็บบันทึกประวัติ
+
+1.1 เข้าไปที่หน้าต่างควบคุม Amazon VPC (ภูมิภาค us-east-1) เพื่อตรวจสอบแผนผังเครือข่ายของ LabVPC พบว่า WebServerSubnet ยังไม่มีเส้นทาง (Route) ชี้ไปยัง Internet Gateway
 ![alt text](image.png)
 1.2 ทำการเปิดระบบบันทึกประวัติโดยเลือกที่ LabVPC กดสร้าง Flow Logs ตั้งชื่อว่า LabVPCFlowLogs กำหนดให้ส่งข้อมูลไปยัง CloudWatch Logs กลุ่มชื่อ LabVPCFlowLogs โดยตั้งค่าเวลาสรุปข้อมูลทุกๆ 1 นาที
 ![alt text](image-1.png)
 #### 2.แก้ไขRoute Tables
+
 2.1 ไปที่หัวข้อ Route Tables เลือกตารางที่ผูกอยู่กับ WebServerSubnet
 ![alt text](image-2.png)
 2.2 กด Edit routes เพิ่มเส้นทางใหม่เป็น ปลายทาง (Destination): 0.0.0.0/0 และ เป้าหมาย (Target): เลือก Internet Gateway (IGW) ของระบบ เพื่อเปิดให้อินเทอร์เน็ตวิ่งเข้า-ออกได้
 ![alt text](image-3.png)
-#### 3.จำกัดสิทธิ์ด้วย Security Groups แบบ Stateful
+#### 3. จำกัดสิทธิ์ด้วย Security Groups แบบ Stateful
+
 3.1 ไปที่ Amazon EC2 คัดลอก Public IP ของ WebServer ไว้ จากนั้นไปที่กลุ่มความปลอดภัย (Security Group) ของเครื่องนี้
 3.2 ลบกฎเดิมที่เปิดกว้างเกินไปออก และเพิ่มกฎขาเข้า (Inbound Rules) ใหม่ 3 ข้อ:
     - HTTP (Port 80): แหล่งที่มา 0.0.0.0/0 (เพื่อให้คนทั่วไปเข้าชมเว็บได้)
     - SSH (Port 22): แหล่งที่มา My IP (ล็อคให้เฉพาะไอพีเครื่องคอมพิวเตอร์ของเราเข้าควบคุมได้)
     - SSH (Port 22): แหล่งที่มาเป็นช่วงไอพีของระบบเชื่อมต่อตรง (EC2 Instance Connect) เพื่อให้กด Connect จากหน้าเว็บ AWS ได้อย่างปลอดภัย
 ![alt text](image-4.png)
-#### 4.เพิ่ม Network ACLs (Stateless)
+#### 4. เพิ่ม Network ACLs (Stateless)
+
 4.1 ไปที่หัวข้อ Network ACLs ของ LabVPC ทดสอบปรับกฎขาเข้าหมายเลข 100 ให้เป็น DENY แล้วลองรีเฟรชหน้าเว็บ ผลปรากฏว่าหน้าเว็บเข้าไม่ได้ทันที (เป็นการพิสูจน์ว่า NACLs ตัดข้อมูลก่อนไปถึง Security Group)
 ![alt text](image-5.png)
 4.2 ปรับตั้งค่ากฎที่ถูกต้องเพื่อให้ใช้งานได้ปลอดภัย:
@@ -97,6 +101,7 @@ Real-world Application & Examples
     - หมายเหตุ: อย่าลืมเปิดพอร์ตขากลับ (Ephemeral Ports) ในกฎขาออก (Outbound Rules) ด้วย เนื่องจาก NACLs เป็น Stateless
 ![alt text](image-6.png)
 #### 5.ติดตั้ง AWS Network Firewall
+
 5.1 ไปที่เครือข่าย NetworkFirewallVPC สร้างระบบกำแพงไฟชื่อ NetworkFirewall ผูกเข้ากับ Subnet ที่เตรียมไว้
 ![alt text](image-9.png)
 5.2 จัดการสร้าง Route Tables ใหม่ 3 ชุด เพื่อบังคับทิศทางข้อมูล (Traffic Redirection) ให้ข้อมูลที่วิ่งจาก Internet Gateway ต้องวิ่งเข้ามาที่ Endpoint ของ Network Firewall ก่อน แล้วจึงจะส่งต่อไปยังเครื่อง WebServer ได้
@@ -164,32 +169,36 @@ Real-world Application & Examples
 - โครงสร้างพื้นฐานเดิม: เครื่องแม่ข่ายเว็บ WebServer2 และเครือข่าย NetworkFirewallVPC จากเฟสที่สอง
 
 ### Steps :
-#### 1.การตั้งค่าระบบส่งสัญญานเตือนภัยผ่านอีเมล (Amazon SNS Topic)
-1.1ลงชื่อเข้าใช้งานด้วยบทบาท voclabs เปิดไปที่บริการ Amazon Simple Notification Service (Amazon SNS) 
+#### 1. การตั้งค่าระบบส่งสัญญานเตือนภัยผ่านอีเมล (Amazon SNS Topic)
+
+1.1 ลงชื่อเข้าใช้งานด้วยบทบาท voclabs เปิดไปที่บริการ Amazon Simple Notification Service (Amazon SNS) 
 1.2 กดสร้างหัวข้อข่าวสาร (Topic) ใหม่ประเภทมาตรฐาน (Standard) ตั้งชื่อว่า CloudWatch_Alarms_Topic
 เมื่อสร้างเสร็จ ให้กดปุ่ม Create subscription เพื่อกำหนดช่องทางการรับข่าวสาร:
 Protocol: เลือกเป็น Email
 Endpoint: กรอกอีเมลจริงของคุณสำหรับใช้รับการแจ้งเตือนจากระบบ
 ![alt text](image-10.png)
-1.3เปิดกล่องข้อความในอีเมลส่วนตัวของคุณ จะพบบทความหัวข้อ AWS Notification - Subscription Confirmation ให้กดปุ่ม Confirm subscription เพื่อเปิดใช้งานช่องทางรับข่าวสารอย่างเป็นทางการ
+1.3 เปิดกล่องข้อความในอีเมลส่วนตัวของคุณ จะพบบทความหัวข้อ AWS Notification - Subscription Confirmation ให้กดปุ่ม Confirm subscription เพื่อเปิดใช้งานช่องทางรับข่าวสารอย่างเป็นทางการ
 ![alt text](image-11.png)
-#### 2.การเปิดกลุ่มเก็บบันทึกเหตุการณ์ (CloudWatch Log Group)
-2.1ไปที่บริการ Amazon CloudWatch เลือกเมนูย่อย Log groups 2. ค้นหากลุ่มบันทึกเหตุการณ์ที่ระบบจำลองสร้างไว้สำหรับเชื่อมต่อกับประวัติการสั่งงาน โดยปกติจะตั้งชื่อในลักษณะใกล้เคียงกับ CloudTrail/CloudWatchLogGroup
-2.2คลิกเข้าไปตรวจสอบด้านใน จะพบรายการสตรีมข้อมูลข้อมูล (Log Streams) ที่หลั่งไหลเข้ามาจากระบบ CloudTrail ตลอดเวลา ซึ่งระบุละเอียดว่าใคร ทำอะไร ที่ไหน เมื่อไหร่ บนระบบคลาวด์
-#### 3.สร้างตัวกรองตรวจจับการพยายามแอบเจาะระบบ (Metric Filter - Unauthorized Attempts)
-เนื่องจากฝ่ายความปลอดภัยต้องการทราบว่ามีใครพยายามส่งคำสั่งที่ไม่มีสิทธิ์ใช้งาน (Access Denied) หรือไม่ 
-เราจึงต้องเขียนเงื่อนไขตัวกรองดักจับ:
-    1.ในหน้า Log Group ข้างต้น เลือกแถบ Metric filters แล้วกดสร้าง (Create metric filter)
-    2.ใส่รหัสคำค้นหาตัวกรอง (Filter pattern) เพื่อดักจับข้อผิดพลาดการถูกปฏิเสธสิทธิ์การเข้าถึง
-    3.ตั้งชื่อตัวกรองว่า UnauthorizedAttemptsFilter และกำหนดชื่อค่าชี้วัด (Metric name) ว่า UnauthorizedAttemptsMetric โดยให้ระบบนับแต้มเพิ่มทีละ 1 ทุกครั้งที่มีประวัติเหตุการณ์ตรงกับเงื่อนไขนี้
+#### 2. การเปิดกลุ่มเก็บบันทึกเหตุการณ์ (CloudWatch Log Group)
+
+2.1 ไปที่บริการ Amazon CloudWatch เลือกเมนูย่อย Log groups 2. ค้นหากลุ่มบันทึกเหตุการณ์ที่ระบบจำลองสร้างไว้สำหรับเชื่อมต่อกับประวัติการสั่งงาน โดยปกติจะตั้งชื่อในลักษณะใกล้เคียงกับ CloudTrail/CloudWatchLogGroup
+2.2 คลิกเข้าไปตรวจสอบด้านใน จะพบรายการสตรีมข้อมูลข้อมูล (Log Streams) ที่หลั่งไหลเข้ามาจากระบบ CloudTrail ตลอดเวลา ซึ่งระบุละเอียดว่าใคร ทำอะไร ที่ไหน เมื่อไหร่ บนระบบคลาวด์
+#### 3. สร้างตัวกรองตรวจจับการพยายามแอบเจาะระบบ (Metric Filter - Unauthorized Attempts)
+
+เนื่องจากฝ่ายความปลอดภัยต้องการทราบว่ามีใครพยายามส่งคำสั่งที่ไม่มีสิทธิ์ใช้งาน (Access Denied) หรือไม่ เราจึงต้องเขียนเงื่อนไขตัวกรองดักจับ:
+
+1. ในหน้า Log Group ข้างต้น เลือกแถบ **Metric filters** แล้วกดสร้าง (Create metric filter)
+2. ใส่รหัสคำค้นหาตัวกรอง (Filter pattern) เพื่อดักจับข้อผิดพลาดการถูกปฏิเสธสิทธิ์การเข้าถึง
+3. ตั้งชื่อตัวกรองว่า `UnauthorizedAttemptsFilter` และกำหนดชื่อค่าชี้วัด (Metric name) ว่า `UnauthorizedAttemptsMetric` โดยให้ระบบนับแต้มเพิ่มทีละ 1 ทุกครั้งที่มีประวัติเหตุการณ์ตรงกับเงื่อนไขนี้
 ![alt text](image-12.png)
-#### 4.ผูกระบบสั่งยิงสัญญาณเตือนภัยเมื่อพบสิ่งผิดปกติ (CloudWatch Alarm)
-1.คลิกที่ตัวเลือกสร้างสัญญาณเตือนภัย (Create alarm) จากค่าชี้วัด UnauthorizedAttemptsMetric ที่เพิ่งสร้างขึ้น
-2.ตั้งค่าเงื่อนไขการเตือนภัย (Conditions):
+#### 4. ผูกระบบสั่งยิงสัญญาณเตือนภัยเมื่อพบสิ่งผิดปกติ (CloudWatch Alarm)
+
+1. คลิกที่ตัวเลือกสร้างสัญญาณเตือนภัย (Create alarm) จากค่าชี้วัด UnauthorizedAttemptsMetric ที่เพิ่งสร้างขึ้น
+2. ตั้งค่าเงื่อนไขการเตือนภัย (Conditions):
     Threshold type: Static
     Whenever UnauthorizedAttemptsMetric is...: เลือกเป็น Greater than (>) และใส่เลข 0 (หมายความว่า หากมีการสั่งงานแล้วโดนปฏิเสธสิทธิ์แม้เพียงครั้งเดียวในรอบ 1 นาที ให้ระบบตื่นตัวทันที)
 ![alt text](image-14.png)
-3.ในขั้นตอนการกำหนดพฤติกรรม (Actions):
+3. ในขั้นตอนการกำหนดพฤติกรรม (Actions):
     เลือกสถานะเป็น In alarm
     ตรงส่วนการส่งข้อเสนอแนะ ให้เลือกผูกเข้ากับ SNS Topic CloudWatch_Alarms_Topic ที่เตรียมไว้ในขั้นตอนแรก จากนั้นตั้งชื่อเตือนภัยนี้ว่า Unauthorized_Attempts_Alarm แล้วกดบันทึกสร้าง
 ![alt text](image-13.png)
