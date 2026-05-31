@@ -1,0 +1,40 @@
+3,John,Stiles,9/20/2016,1980 8th St.,Nowhere,NY,914-555-0122
+4,Li,Juan,6/29/2011,1323 22nd Ave.,Anytown,NY,914-555-0149
+
+CREATE EXTERNAL TABLE `default.bucket_logs`(
+  `bucketowner` STRING, 
+  `bucket_name` STRING, 
+  `requestdatetime` STRING, 
+  `remoteip` STRING, 
+  `requester` STRING, 
+  `requestid` STRING, 
+  `operation` STRING, 
+  `key` STRING, 
+  `request_uri` STRING, 
+  `httpstatus` STRING, 
+  `errorcode` STRING, 
+  `bytessent` BIGINT, 
+  `objectsize` BIGINT, 
+  `totaltime` STRING, 
+  `turnaroundtime` STRING, 
+  `referrer` STRING, 
+  `useragent` STRING, 
+  `versionid` STRING, 
+  `hostid` STRING, 
+  `sigv` STRING, 
+  `ciphersuite` STRING, 
+  `authtype` STRING, 
+  `endpoint` STRING, 
+  `tlsversion` STRING,
+  `accesspointarn` STRING,
+  `aclrequired` STRING)
+ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.serde2.RegexSerDe' 
+WITH SERDEPROPERTIES ( 
+  'input.regex'='([^ ]*) ([^ ]*) \\[(.*?)\\] ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*) (\"[^\"]*\"|-) (-|[0-9]*) ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*) (\"[^\"]*\"|-) ([^ ]*)(?: ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*))?.*$') 
+STORED AS INPUTFORMAT 
+  'org.apache.hadoop.mapred.TextInputFormat' 
+OUTPUTFORMAT 
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION
+  's3://s3-objects-access-log-08281732311b74810/'
