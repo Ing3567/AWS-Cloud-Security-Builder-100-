@@ -75,26 +75,34 @@ Real-world Application & Examples
 1.1เข้าไปที่หน้าต่างควบคุม Amazon VPC (ภูมิภาค us-east-1) เพื่อตรวจสอบแผนผังเครือข่ายของ LabVPC พบว่า WebServerSubnet ยังไม่มีเส้นทาง (Route) ชี้ไปยัง Internet Gateway
 ![alt text](image.png)
 1.2 ทำการเปิดระบบบันทึกประวัติโดยเลือกที่ LabVPC กดสร้าง Flow Logs ตั้งชื่อว่า LabVPCFlowLogs กำหนดให้ส่งข้อมูลไปยัง CloudWatch Logs กลุ่มชื่อ LabVPCFlowLogs โดยตั้งค่าเวลาสรุปข้อมูลทุกๆ 1 นาที
-![AWS Architecture Diagram](Phase 2\Screenshot 2026-05-25 220008.png)
+![alt text](image-1.png)
 #### 2.แก้ไขRoute Tables
 2.1 ไปที่หัวข้อ Route Tables เลือกตารางที่ผูกอยู่กับ WebServerSubnet
+![alt text](image-2.png)
 2.2 กด Edit routes เพิ่มเส้นทางใหม่เป็น ปลายทาง (Destination): 0.0.0.0/0 และ เป้าหมาย (Target): เลือก Internet Gateway (IGW) ของระบบ เพื่อเปิดให้อินเทอร์เน็ตวิ่งเข้า-ออกได้
+![alt text](image-3.png)
 #### 3.จำกัดสิทธิ์ด้วย Security Groups แบบ Stateful
 3.1 ไปที่ Amazon EC2 คัดลอก Public IP ของ WebServer ไว้ จากนั้นไปที่กลุ่มความปลอดภัย (Security Group) ของเครื่องนี้
 3.2 ลบกฎเดิมที่เปิดกว้างเกินไปออก และเพิ่มกฎขาเข้า (Inbound Rules) ใหม่ 3 ข้อ:
     - HTTP (Port 80): แหล่งที่มา 0.0.0.0/0 (เพื่อให้คนทั่วไปเข้าชมเว็บได้)
     - SSH (Port 22): แหล่งที่มา My IP (ล็อคให้เฉพาะไอพีเครื่องคอมพิวเตอร์ของเราเข้าควบคุมได้)
     - SSH (Port 22): แหล่งที่มาเป็นช่วงไอพีของระบบเชื่อมต่อตรง (EC2 Instance Connect) เพื่อให้กด Connect จากหน้าเว็บ AWS ได้อย่างปลอดภัย
+![alt text](image-4.png)
 #### 4.เพิ่ม Network ACLs (Stateless)
 4.1 ไปที่หัวข้อ Network ACLs ของ LabVPC ทดสอบปรับกฎขาเข้าหมายเลข 100 ให้เป็น DENY แล้วลองรีเฟรชหน้าเว็บ ผลปรากฏว่าหน้าเว็บเข้าไม่ได้ทันที (เป็นการพิสูจน์ว่า NACLs ตัดข้อมูลก่อนไปถึง Security Group)
+![alt text](image-5.png)
 4.2 ปรับตั้งค่ากฎที่ถูกต้องเพื่อให้ใช้งานได้ปลอดภัย:
     - Rule 90: เปิดพอร์ต 80 (HTTP) จากทุกที่
     - Rule 100: เปิดพอร์ต 22 (SSH) จากกลุ่มผู้ดูแลระบบ
     - หมายเหตุ: อย่าลืมเปิดพอร์ตขากลับ (Ephemeral Ports) ในกฎขาออก (Outbound Rules) ด้วย เนื่องจาก NACLs เป็น Stateless
+![alt text](image-6.png)
 #### 5.ติดตั้ง AWS Network Firewall
 5.1 ไปที่เครือข่าย NetworkFirewallVPC สร้างระบบกำแพงไฟชื่อ NetworkFirewall ผูกเข้ากับ Subnet ที่เตรียมไว้
+![alt text](image-9.png)
 5.2 จัดการสร้าง Route Tables ใหม่ 3 ชุด เพื่อบังคับทิศทางข้อมูล (Traffic Redirection) ให้ข้อมูลที่วิ่งจาก Internet Gateway ต้องวิ่งเข้ามาที่ Endpoint ของ Network Firewall ก่อน แล้วจึงจะส่งต่อไปยังเครื่อง WebServer ได้
+![alt text](image-8.png)
 5.3 สร้างกลุ่มกฎระเบียบแบบ Stateful Rule Group โดยใช้เกณฑ์คัดกรอง 5 ข้อ (บล็อคพอร์ต 8080 และอนุญาตพอร์ต 80, 22, 443, ICMP)
+![alt text](image-7.png)
 
 ### Conclusion & Future Work :
 Key Takeaways
